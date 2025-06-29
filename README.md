@@ -15,6 +15,12 @@
 ### RRAM for Compute-in-Memory: From Inference to Training
 https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9406197
 
+### Fully-Binarized, Parallel, RRAM-based Computing Primitive for In-Memory Similarity Search
+https://arxiv.org/pdf/2208.02651v1
+
+- this might be the perfect paper for modeling the Cell
+
+
 ## Questions
 - what options of software optimizing are there
 - the final project only considers inference forming and not training? 
