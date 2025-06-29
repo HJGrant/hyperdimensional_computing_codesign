@@ -4,7 +4,23 @@
 
 ## Brain Inspired Computing Final Project 
 
-### Goals 
+## Papers
+
+### 2T2R RRAM-Based In-Memory Hyperdimensional Computing
+ https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10388038
+
+- efficient in memory implementation 
+- interesting section: _C. AM Architecture_
+
+### RRAM for Compute-in-Memory: From Inference to Training
+https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9406197
+
+## Questions
+- what options of software optimizing are there
+- the final project only considers inference forming and not training? 
+
+
+## Goals 
 - Maximize Inference Accuracy, while minimizing energy consumption. 
 
 ## Add your files
