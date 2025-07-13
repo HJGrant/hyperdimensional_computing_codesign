@@ -143,7 +143,7 @@ vector<double> inference_with_errors(vector<tuple<string, string>> class_vectors
     for (auto [class_label, vector_string] : class_vectors){
         block_class_vectors.push_back(make_tuple(class_label, *make_block_vector_floor(vector_string, block_size)));
     }
-
+    
     block_vector_set block_test_vectors;
     for (auto [querry_label, vector_string] : test_vectors){
         block_test_vectors.push_back(make_tuple(querry_label, *make_block_vector_floor(vector_string, block_size)));

@@ -6,12 +6,9 @@ import multiprocessing
 import sys
 from scipy.spatial import distance
 
-#import functions as fn
-
 #constants
 dimensions = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000]
 gram_size = 4
-#iterator = 50
 #bic_training_file_array = {'dan': '/space/chair-nas/teaching/bic_lab/initial_material/hdc/language_recognition_dataset/training/dan.txt'}
 bic_training_file_array = {
     'dan': '/space/chair-nas/teaching/bic_lab/initial_material/hdc/language_recognition_dataset/training/dan.txt',
@@ -83,17 +80,6 @@ def create_4_gram(char1, char2, char3, char4):
     vector = xor(vector, shift(shift(shift(char4))))
     return vector
 
-def create_5_gram(char1, char2, char3, char4, char5):
-    vector = xor(char1, shift(char2))
-    vector = xor(vector, shift(shift(char3)))
-    vector = xor(vector, shift(shift(shift(char4))))
-    vector = xor(vector, shift(shift(shift(shift(char5)))))
-    return vector
-
-def create_3_gram(char1, char2, char3):
-    vector = xor(char1, shift(char2))
-    vector = xor(vector, shift(shift(char3)))
-    return vector
 
 #fehlerhaft
 def bundle(matrix):
@@ -110,13 +96,6 @@ def return_char_array(line):
         char_array.append(char)
     np_char_array = np.array(char_array)
     return np_char_array
-
-#def create_char_hypervectors_file():
-#    with open(char_hypervectors_file, 'w') as file:
-#        for char, hypervector in char_hypervectors.items():
-#            #file.write(f"{char}: {hypervector}\n")
-#            hypervector_str = ' '.join(map(str, hypervector))
-#            file.write(f"{char}: {hypervector_str}\n")
 
 def write_dict_to_file(path, vector):
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -251,32 +230,6 @@ def get_test_sets(dimension, language_training_file, char_training_file, trained
     pass    
 
 
-def accuracy_calc(dimension, language_training_file_hypervectors, language_training_file_hypervectors_values, language_training_file_hypervectors_identifiers ,my_dict, iterator):
-    language_testing_file = f'{base_directory}/dimension_{dimension}/{language_training_file_hypervectors_identifiers[iterator]}.txt'
-    language_testing_file_hypervectors_values = import_values_from_txt(language_testing_file)
-
-    correct_language = language_training_file_hypervectors_identifiers[iterator]
-    correct_language_cnt = 0
-    
-    for line in language_testing_file_hypervectors_values:
-        Min_distance = float('inf')
-        for key, value in language_training_file_hypervectors.items():
-            distance = hamming_distance(line, value)
-            if distance < Min_distance:
-                Min_distance = distance
-                closest_language = key
-
-        if closest_language == correct_language:
-            correct_language_cnt += 1
-
-    my_dict[correct_language] = correct_language_cnt/1000
-    return(1)
-
-
-
-def hamming_distance(vec1, vec2):
-    return distance.hamming(vec1, vec2) * len(vec1)
-
 
 def train_set():
     dimension = choose_dimension('training')
@@ -340,33 +293,7 @@ def test_set():
     
     test_set()
 
-def result():
-    dimension = choose_dimension('result')
-    print(f"extracting results for dimension {dimension}\n")
-    language_training_file = f'{base_directory}/dimension_{dimension}/training_language.txt'
-    language_training_file_hypervectors = import_dict_from_txt(language_training_file)
-    language_training_file_hypervectors_identifiers = list(language_training_file_hypervectors.keys())
-    language_training_file_hypervectors_values = list(language_training_file_hypervectors.values())
-    result_file = f'{base_directory}/dimension_{dimension}/results.txt'
-    my_dict = multiprocessing.Manager().dict()
-
-    #start multiprocessing
-    processes = []
-    for lang_iterator in range(len(language_training_file_hypervectors_identifiers)):
-    #for lang_iterator in range(1):
-        process = multiprocessing.Process(target=accuracy_calc, args=(dimension, language_training_file_hypervectors, language_training_file_hypervectors_values, language_training_file_hypervectors_identifiers, my_dict, lang_iterator-1))
-        processes.append(process)
-        process.start()
-
-    for process in processes:
-        process.join()
-    
-    
-    print(my_dict)
-    write_dict_to_file(result_file, my_dict)
-    result()
-
-    
+   
 
 def default_case():
     print("Invalid selection")
@@ -376,16 +303,13 @@ def switch_case(user_input):
         return train_set()
     elif user_input == '2':
         return test_set()
-    elif user_input == '3':
-        #cosine similarity
-        return result()
     else: 
         return default_case()
 
 
 def main():
 
-    user_input = input("Enter a case (1: training, or 2: testing, or 3: accuracy results): ")
+    user_input = input("Enter a case (1: training, or 2: testing): ")
     result = switch_case(user_input)    
 
 
