@@ -9,11 +9,10 @@ from scipy.spatial import distance
 #import functions as fn
 
 #constants
-dimensions = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000, 3000]
-#dimensions = [100]
+dimensions = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000]
 gram_size = 4
 #iterator = 50
-#bic_training_file_array = {'deu': '/home/woss/Documents/SPICE/Task6/4_gram/test.txt'}
+#bic_training_file_array = {'dan': '/space/chair-nas/teaching/bic_lab/initial_material/hdc/language_recognition_dataset/training/dan.txt'}
 bic_training_file_array = {
     'dan': '/space/chair-nas/teaching/bic_lab/initial_material/hdc/language_recognition_dataset/training/dan.txt',
     'deu': '/space/chair-nas/teaching/bic_lab/initial_material/hdc/language_recognition_dataset/training/deu.txt',
@@ -41,9 +40,8 @@ bic_testing_file_array = {
 }
 
 
-base_directory = '/home/woss/Documents/SPICE/Task6/4_gram/float64'
+base_directory = '/home/woss/Documents/final_task/final_project_bic/4_gram'
 
-dtype = np.float64
 
 #initialise characterlist
 characters = list(string.ascii_lowercase + string.digits + string.punctuation + ' ' + '')
@@ -80,28 +78,29 @@ def xor(input_data1, input_data2):
     return np.bitwise_xor(vector1, vector2)
 
 def create_4_gram(char1, char2, char3, char4):
-    vector = char1 * shift(char2)
-    vector = vector * shift(shift(char3))
-    vector = vector * shift(shift(shift(char4)))
+    vector = xor(char1, shift(char2))
+    vector = xor(vector, shift(shift(char3)))
+    vector = xor(vector, shift(shift(shift(char4))))
     return vector
 
+def create_5_gram(char1, char2, char3, char4, char5):
+    vector = xor(char1, shift(char2))
+    vector = xor(vector, shift(shift(char3)))
+    vector = xor(vector, shift(shift(shift(char4))))
+    vector = xor(vector, shift(shift(shift(shift(char5)))))
+    return vector
 
+def create_3_gram(char1, char2, char3):
+    vector = xor(char1, shift(char2))
+    vector = xor(vector, shift(shift(char3)))
+    return vector
 
 #fehlerhaft
 def bundle(matrix):
-    try:
-        expected_len = len(matrix[0])
-    except IndexError:
-        print("Matrix is malformed (no rows).")
-        print(matrix)
-        return None
-    filtered_matrix = [row for row in matrix if row is not None and len(row) == expected_len]
-    
-    np_matrix = np.array(filtered_matrix, dtype=dtype)
+    np_matrix = np.array(matrix)
     num_of_rows = np_matrix.shape[0]
-    np_vector = np.sum(np_matrix, axis = 0) 
-    np_result_vector = np.clip(np_vector/num_of_rows, -1, 1) 
-    #np_result_vector = np.clip(np_vector, -1, 1)
+    np_vector = np.sum(np_matrix, axis = 0)
+    np_result_vector = np.where(np_vector/num_of_rows >= 0.5,1,0) 
     return np_result_vector
 
 def return_char_array(line):
@@ -155,7 +154,7 @@ def import_dict_from_txt(file_path):
             #key_array.append(key.strip())
             key_array.append(key)
             value = value.strip().split()
-            value_array.append([dtype(bit) for bit in value])
+            value_array.append([int(bit) for bit in value])
             #value_array.append([int(bit) for bit in value.strip()])
         dict_from_file = dict(zip(key_array, value_array))               
     return dict_from_file
@@ -168,7 +167,7 @@ def import_values_from_txt(file_path):
             key, value = line.split(':',1)
             #key_array.append(key.strip())
             value = value.strip().split()
-            value_array.append([dtype(bit) for bit in value])
+            value_array.append([int(bit) for bit in value])
     return value_array 
 
 
@@ -260,12 +259,11 @@ def accuracy_calc(dimension, language_training_file_hypervectors, language_train
     correct_language_cnt = 0
     
     for line in language_testing_file_hypervectors_values:
-        max_similarity = dtype(0.0)
+        Min_distance = float('inf')
         for key, value in language_training_file_hypervectors.items():
-            similarity = cosine_similarity(line, value)
-            print(f'type: {type(similarity)}, {type(max_similarity)}')
-            if similarity > max_similarity:
-                max_similarity = similarity
+            distance = hamming_distance(line, value)
+            if distance < Min_distance:
+                Min_distance = distance
                 closest_language = key
 
         if closest_language == correct_language:
@@ -276,22 +274,15 @@ def accuracy_calc(dimension, language_training_file_hypervectors, language_train
 
 
 
-#def hamming_distance(vec1, vec2):
-#    return distance.hamming(vec1, vec2) * len(vec1)
-
-def cosine_similarity(line, value):
-    dot_product = np.dot(line, value)
-    norm_line = np.linalg.norm(line)
-    norm_value = np.linalg.norm(value)
-    similarity = dot_product / (norm_line * norm_value)
-    return similarity.astype(dtype)
+def hamming_distance(vec1, vec2):
+    return distance.hamming(vec1, vec2) * len(vec1)
 
 
 def train_set():
     dimension = choose_dimension('training')
     print(f"training set with {dimension} dimensions\n")
-
-    char_hypervectors = {char: np.random.uniform(-1, 1, dimension).astype(dtype) for char in characters}    
+    
+    char_hypervectors = {char: np.random.randint(0, 2, dimension) for char in characters}
     language_training_file = f'{base_directory}/dimension_{dimension}/training_language.txt'
     char_training_file = f'{base_directory}/dimension_{dimension}/training_characters.txt'
     remove_file(language_training_file)
@@ -315,10 +306,10 @@ def train_set():
                 line_matrix.append(charvector)
 
             document_matrix.append(bundle(line_matrix))
-        
+
+        #print(document_matrix)
         document_vector = bundle(document_matrix)
         print(...)
-        print(f'document vector: {document_vector}')
         append_data_to_file(language_training_file, identifiers[file_iterator], document_vector)
         file_iterator = file_iterator - 1
 
