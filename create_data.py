@@ -7,7 +7,7 @@ import sys
 from scipy.spatial import distance
 
 #constants
-dimensions = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000]
+dimensions = [128, 256, 512, 1024, 2048, 4096]
 gram_size = 4
 #bic_training_file_array = {'dan': '/space/chair-nas/teaching/bic_lab/initial_material/hdc/language_recognition_dataset/training/dan.txt'}
 bic_training_file_array = {

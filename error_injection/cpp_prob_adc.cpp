@@ -138,6 +138,13 @@ size_t sysrandom(void* dst, size_t dstlen){
 * pybind11 will take care of the type casts for python types to C++ types.
 * Eg. a python list of tuples will be casted to a C++ vector of tuples.
 */
+//vector<double> inference_with_errors(int num_of_samples){
+//    vector <double> result_accuracies;
+//    for (int i = 0; i < num_of_samples; i++){
+//        result_accuracies[i] = 1.0;
+//   }
+//    return result_accuracies;
+//}
 vector<double> inference_with_errors(vector<tuple<string, string>> class_vectors, vector<tuple<string, string>> test_vectors, int num_of_samples, int block_size, int precision, vector<vector<double>> adc_model_matrix){
     block_vector_set block_class_vectors;
     for (auto [class_label, vector_string] : class_vectors){
