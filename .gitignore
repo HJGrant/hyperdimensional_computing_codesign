@@ -4,7 +4,7 @@
 *.tro
 *.txt
 
-cam_bloc.sp
+cam_block.sp
 cam_cell.sp
 
 out/
