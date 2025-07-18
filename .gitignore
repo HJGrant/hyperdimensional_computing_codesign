@@ -3,3 +3,8 @@
 **/__pycache__*/
 *.tro
 *.txt
+
+cam_bloc.sp
+cam_cell.sp
+
+out/
