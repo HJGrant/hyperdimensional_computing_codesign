@@ -1,19 +1,29 @@
 import numpy as np
 import os
 import sys
+import csv
+
 
 from error_injection import cpp_prob_adc
 
-file_path = "test.txt"
+base_path = "/home/woss/Documents/final_task/final_project_bic/4_gram/"
+languages = ["eng", "deu", "fra", "swe", "ita", "spa", "por", "pol", "nld", "dan"]
+csv_file_path = 'results.csv'
 
-class_path = "training_language.txt"
+#dimensions = [128]  # Example dimensions
+#block_sizes = [2]   # Example block sizes
+#precisions = [1]          # Example precisions
+dimensions = [128, 256, 512, 1024, 2048, 4096]  # Example dimensions
+block_sizes = [8, 16, 32, 64]   # Example block sizes
+precisions = [1, 2, 3, 4, 5, 6, 7, 8]          # Example precisions
+
 
 adc_model_matrix = [
-    [0.9, 0.1, 0.0, 0.0, 0.0],  # True HD = 0: mostly stays 0, small chance for 1
-    [0.1, 0.7, 0.2, 0.0, 0.0],  # True HD = 1
-    [0.05, 0.15, 0.7, 0.1, 0.0],  # True HD = 2
-    [0.02, 0.08, 0.2, 0.6, 0.1],  # True HD = 3
-    [0.01, 0.04, 0.15, 0.3, 0.5],  # True HD = 4
+    [1, 0, 0, 0, 0],  
+    [0, 1, 0, 0, 0],  
+    [0, 0, 1, 0, 0],  
+    [0, 0, 0, 1, 0], 
+    [0, 0, 0, 0, 1],  
 ]
 
 
@@ -31,17 +41,7 @@ def import_dict_from_txt(file_path):
     return vectors
 
 
-def main():
-
-    class_vectors = import_dict_from_txt(file_path)
-    test_vectors = import_dict_from_txt(file_path)
-    number_of_samples = 5
-    block_size = 10
-    precision = 4
-
-    print(type(class_vectors), type(class_vectors[0]), type(class_vectors[0][0]), type(class_vectors[0][1]))
-    print(type(adc_model_matrix), type(adc_model_matrix[0]), type(adc_model_matrix[0][0]))
- 
+def run_inference(class_vectors, test_vectors, number_of_samples, block_size, precision, adc_model_matrix):
     results = cpp_prob_adc.inference_with_errors(
         class_vectors,
         test_vectors,
@@ -51,9 +51,87 @@ def main():
         adc_model_matrix
     )
     return results
+
+
+def generate_test_paths(dimension):
+    file_paths = [f"{base_path}dimension_{dimension}/{lang}.txt" for lang in languages]
+    return file_paths
+
+def get_class_path(dimension):
+    return f"{base_path}dimension_{dimension}/training_language.txt"
+
+def generate_adc_model_matrix(precision):
+    # Create an identity matrix with precision + 1 rows and columns
+    return np.eye(precision + 1)
+
+def create_csv_file(csv_file_path, all_results):
+    # Write the results to a CSV file
+    with open(csv_file_path, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        # Write the header
+        writer.writerow(['Dimension', 'Block Size', 'Precision', 'Results'])
+        # Write the data
+        for result in all_results:
+            writer.writerow([result['dimension'], result['block_size'], result['precision'], result['results']])
+
+
+
+
+def main():
+
     
+    all_results = []
+
+    # Iterate over each combination of parameters
+    for dimension in dimensions:
+        for block_size in block_sizes:
+            for precision in precisions:
+                # Generate the adc_model_matrix based on the precision
+                adc_model_matrix = generate_adc_model_matrix(precision)
+                print(adc_model_matrix)
+                # Generate test paths for the current dimension
+                test_paths = generate_test_paths(dimension)
+
+                # Initialize a list to store results for the current parameter combination
+                results = []
+
+                # Run inference for each path
+                for path in test_paths:
+                    result = run_inference(
+                        import_dict_from_txt(get_class_path(dimension)),
+                        import_dict_from_txt(path),
+                        1,
+                        block_size,
+                        precision,
+                        adc_model_matrix
+                    )
+                    results.append(result)
+
+                # Calculate the average for the current parameter combination
+                average = np.mean(results, axis=0)
+                #print(average)
+                #results.append(average)
+
+                # Store the results along with the parameters
+                all_results.append({
+                    'dimension': dimension,
+                    'block_size': block_size,
+                    'precision': precision,
+                    'results': float(average)
+                })
+    
+    create_csv_file(csv_file_path, all_results)
+
+
+
+    
+
+
 if __name__ == "__main__":
     results = main()
-
     print("results:")
     print(results)
+
+    #result_pol = run_inference(import_dict_from_txt("/home/woss/Documents/final_task/final_project_bic/4_gram/dimension_256/training_language.txt"), import_dict_from_txt("/home/woss/Documents/final_task/final_project_bic/4_gram/dimension_256/swe.txt"), 1, 20, 4, adc_model_matrix)
+    #print("result_pol:")
+    #print(result_pol)
