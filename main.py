@@ -14,7 +14,7 @@ csv_file_path = 'results.csv'
 #block_sizes = [2]   # Example block sizes
 #precisions = [1]          # Example precisions
 dimensions = [128, 256, 512, 1024, 2048, 4096]  # Example dimensions
-block_sizes = [8, 16, 32, 64]   # Example block sizes
+block_sizes = [8, 9, 10, 11, 12, 13, 14, 15, 16]   # Example block sizes
 precisions = [1, 2, 3, 4, 5, 6, 7, 8]          # Example precisions
 
 
