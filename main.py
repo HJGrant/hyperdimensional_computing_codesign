@@ -9,6 +9,7 @@ from error_injection import cpp_prob_adc
 base_path = "/home/woss/Documents/final_task/final_project_bic/4_gram/"
 languages = ["eng", "deu", "fra", "swe", "ita", "spa", "por", "pol", "nld", "dan"]
 csv_file_path = 'results.csv'
+npy_file_path = '/home/woss/Documents/final_task/final_project_bic/compute_conf_matrices/conf_matrix_results.npy'
 
 #dimensions = [128]  # Example dimensions
 #block_sizes = [2]   # Example block sizes
@@ -76,11 +77,60 @@ def create_csv_file(csv_file_path, all_results):
 
 
 
+def run_npy_data():
+    data = np.load(npy_file_path, allow_pickle=True)
+    updated_data = []
+
+    for entry in data:
+        dimension = entry['vec_dim']
+        number_of_samples = 100  # Replace this if it's stored somewhere
+        block_size = entry['block_size']
+        precision = entry['precision']
+        adc_model_matrix = entry['conf_matrix'] # Or fetch from elsewhere if needed
+
+        test_paths = generate_test_paths(dimension)
+        results = []
+        for path in test_paths:
+            result = run_inference(
+                import_dict_from_txt(get_class_path(dimension)),
+                import_dict_from_txt(path),
+                number_of_samples,
+                block_size,
+                precision,
+                adc_model_matrix
+            )
+            results.append(result)
+        average = np.mean(results)
+        entry['inference_result'] = average
+        updated_data.append(entry)
+
+    np.save('updated_conf_matrix_results.npy', updated_data)
 
 def main():
 
+    run_npy_data()    
+
+
+
+
     
-    all_results = []
+
+
+if __name__ == "__main__":
+    results = main()
+    print("results:")
+    print(results)
+
+    #result_pol = run_inference(import_dict_from_txt("/home/woss/Documents/final_task/final_project_bic/4_gram/dimension_256/training_language.txt"), import_dict_from_txt("/home/woss/Documents/final_task/final_project_bic/4_gram/dimension_256/swe.txt"), 1, 20, 4, adc_model_matrix)
+    #print("result_pol:")
+    #print(result_pol)
+
+
+
+
+"""
+def oldstuff()
+        all_results = []
 
     # Iterate over each combination of parameters
     for dimension in dimensions:
@@ -121,17 +171,5 @@ def main():
                 })
     
     create_csv_file(csv_file_path, all_results)
-
-
-
+    """
     
-
-
-if __name__ == "__main__":
-    results = main()
-    print("results:")
-    print(results)
-
-    #result_pol = run_inference(import_dict_from_txt("/home/woss/Documents/final_task/final_project_bic/4_gram/dimension_256/training_language.txt"), import_dict_from_txt("/home/woss/Documents/final_task/final_project_bic/4_gram/dimension_256/swe.txt"), 1, 20, 4, adc_model_matrix)
-    #print("result_pol:")
-    #print(result_pol)

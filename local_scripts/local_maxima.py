@@ -31,7 +31,7 @@ for precision in unique_precisions:
     grid_x, grid_y = np.mgrid[min(ratios):max(ratios):100j, min(dimensions):max(dimensions):100j]
 
     # Interpolate the results onto the grid
-    grid_z = griddata((ratios, dimensions), results, (grid_x, grid_y), method='linear')
+    grid_z = griddata((ratios, dimensions), results, (grid_x, grid_y), method='cubic')
 
     # Clip the interpolated values to the range [0, 1]
 
@@ -75,4 +75,4 @@ for precision in unique_precisions:
 mapped_maxima_df = pd.DataFrame(mapped_maxima)
 
 # Write the results to a new CSV file
-mapped_maxima_df.to_csv('mapped_maxima.csv', index=False)
+mapped_maxima_df.to_csv('mapped_maxima_cubic.csv', index=False)
