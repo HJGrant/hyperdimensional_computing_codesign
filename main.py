@@ -89,24 +89,24 @@ def run_npy_data():
         precision = entry['precision']
         adc_model_matrix = entry['conf_matrix'] # Or fetch from elsewhere if needed
 
-        test_paths = generate_test_paths(dimension)
-        results = []
-        for path in test_paths:
-            result = run_inference(
-                import_dict_from_txt(get_class_path(dimension)),
-                import_dict_from_txt(path),
-                number_of_samples,
-                block_size,
-                precision,
-                adc_model_matrix
-            )
-            results.append(result)
-        average = np.mean(results)
-        entry['inference_result'] = average
-        updated_data.append(entry)
-        print(entry)
-
-    np.save('updated1_conf_matrix_results.npy', updated_data)
+        if dimension in [1024, 2048] and block_size in [8, 16] and precision < block_size:
+            test_paths = generate_test_paths(dimension)
+            results = []
+            for path in test_paths:
+                result = run_inference(
+                    import_dict_from_txt(get_class_path(dimension)),
+                    import_dict_from_txt(path),
+                    number_of_samples,
+                    block_size,
+                    precision,
+                    adc_model_matrix
+                )
+                results.append(result)
+            average = np.mean(results)
+            entry['inference_result'] = average
+            updated_data.append(entry)
+            print(entry)
+            np.save(f'conf_matrix_results/inference_results.npy', updated_data)
 
 def main():
 
