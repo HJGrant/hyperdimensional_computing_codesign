@@ -2,6 +2,7 @@ import numpy as np
 import os
 import sys
 import csv
+from tqdm import tqdm
 
 
 from error_injection import cpp_prob_adc
@@ -81,7 +82,7 @@ def run_npy_data():
     data = np.load(npy_file_path, allow_pickle=True)
     updated_data = []
 
-    for entry in data:
+    for entry in tqdm(data):
         dimension = entry['vec_dim']
         number_of_samples = 100  # Replace this if it's stored somewhere
         block_size = entry['block_size']
@@ -103,8 +104,9 @@ def run_npy_data():
         average = np.mean(results)
         entry['inference_result'] = average
         updated_data.append(entry)
+        print(entry)
 
-    np.save('updated_conf_matrix_results.npy', updated_data)
+    np.save('updated1_conf_matrix_results.npy', updated_data)
 
 def main():
 
