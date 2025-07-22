@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 # Load your .npy dataset
 data = np.load("inference_results.npy", allow_pickle=True)
 df = pd.DataFrame(data.tolist())
-print(df.columns.tolist())
+df_no_matrix = df.drop(columns=['conf_matrix'])
+
 
 # OPTIONAL: If any column is a numpy float type, convert it to float for consistency
 df['avg_power_vec'] = df['avg_power_vec'].astype(float)
@@ -37,6 +38,11 @@ for _, row in pareto_df.iterrows():
           f"precision={row['precision']:>2}, vdd={row['vdd']:.1f}, "
           f"power={row['avg_power_vec']:.6f}, accuracy={row['inference_result']:.4f}")
 
+# create csv file for tikz
+df_no_matrix.to_csv("inference_data.csv", index=False)
+pareto_df_no_matrix = pareto_df.drop(columns=['conf_matrix'])
+pareto_df_no_matrix.to_csv("inference_pareto.csv", index=False)
+
 # Optional: visualize
 plt.figure(figsize=(8, 5))
 plt.scatter(df['avg_power_vec'], df['inference_result'], label="All configs", alpha=0.4)
@@ -48,3 +54,4 @@ plt.legend()
 plt.grid(True)
 plt.tight_layout()
 plt.show()
+
