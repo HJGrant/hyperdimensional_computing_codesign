@@ -1,0 +1,5 @@
+TECH = 'tech_'
+TEMPERATURE_PARAM = 'temp_'
+VDD_PARAM = 'vdd_'
+BLOCK_SIZE = 'block_size_'
+VEC_DIM = 'vec_dim_'
